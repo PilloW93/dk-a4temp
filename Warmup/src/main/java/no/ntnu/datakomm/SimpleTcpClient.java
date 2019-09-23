@@ -139,31 +139,29 @@ public class SimpleTcpClient {
      * @return True when message successfully sent, false on error.
      */
     private boolean sendRequestToServer(String request) {
-        if(request != null){
-            try {
-                OutputStream out = socket.getOutputStream();
-                PrintWriter writer = new PrintWriter(out, true);
-                writer.println(request);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (NullPointerException npe){
-                npe.printStackTrace();
+        if (request != null) {
+            if (socket.isConnected()) {
+                try {
+                    OutputStream out = socket.getOutputStream();
+                    PrintWriter writer = new PrintWriter(out, true);
+                    writer.println(request);
+                    return true;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (NullPointerException npe){
+                    npe.printStackTrace();
+                }
             }
-
-            // Unfinished
+            else {
+                return false;
+            }
         }
-        else {
-            // Unfinished
-        }
-
-
-        // TODO - implement this method
+        return false;
         // Hint: What can go wrong? Several things:
         // * Connection closed by remote host (server shutdown)
         // * Internet connection lost, timeout in transmission
         // * Connection not opened.
         // * What is the request is null or empty?
-        return false;
     }
 
     /**
