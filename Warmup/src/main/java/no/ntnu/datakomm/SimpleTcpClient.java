@@ -3,8 +3,11 @@ package no.ntnu.datakomm;
 import sun.nio.cs.ext.SimpleEUCEncoder;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketException;
 
 /**
  * A Simple TCP client, used as a warm-up exercise for assignment A4.
@@ -136,6 +139,24 @@ public class SimpleTcpClient {
      * @return True when message successfully sent, false on error.
      */
     private boolean sendRequestToServer(String request) {
+        if(request != null){
+            try {
+                OutputStream out = socket.getOutputStream();
+                PrintWriter writer = new PrintWriter(out, true);
+                writer.println(request);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (NullPointerException npe){
+                npe.printStackTrace();
+            }
+
+            // Unfinished
+        }
+        else {
+            // Unfinished
+        }
+
+
         // TODO - implement this method
         // Hint: What can go wrong? Several things:
         // * Connection closed by remote host (server shutdown)
