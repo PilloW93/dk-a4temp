@@ -1,13 +1,14 @@
 package no.ntnu.datakomm;
 
+import jdk.internal.util.xml.impl.Input;
 import sun.nio.cs.ext.SimpleEUCEncoder;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
+import java.nio.Buffer;
+import java.util.Scanner;
 
 /**
  * A Simple TCP client, used as a warm-up exercise for assignment A4.
@@ -16,7 +17,7 @@ public class SimpleTcpClient {
     // Remote host where the server will be running
     private static final String HOST = "localhost";
     // TCP port
-    private static final int PORT = 1301;
+    private static final int PORT = 1333;
 
     private Socket socket;
 
@@ -171,9 +172,18 @@ public class SimpleTcpClient {
      * (not included in the returned value).
      */
     private String readResponseFromServer() {
-        // TODO - implement this method
+        String responseLine = null;
+        try {
+            InputStream in = socket.getInputStream();
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            responseLine = br.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (NullPointerException npe) {
+            npe.printStackTrace();
+        }
         // Similarly to other methods, exception can happen while trying to read the input stream of the TCP Socket
-        return null;
+        return responseLine;
     }
 
     /**
