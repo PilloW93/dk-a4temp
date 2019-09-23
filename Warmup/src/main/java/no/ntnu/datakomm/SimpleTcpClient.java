@@ -1,5 +1,7 @@
 package no.ntnu.datakomm;
 
+import sun.nio.cs.ext.SimpleEUCEncoder;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -12,6 +14,12 @@ public class SimpleTcpClient {
     private static final String HOST = "localhost";
     // TCP port
     private static final int PORT = 1301;
+
+    private Socket socket;
+
+    public SimpleTcpClient() {
+        this.socket = new Socket();
+    }
 
     /**
      * Run the TCP Client.
@@ -93,6 +101,12 @@ public class SimpleTcpClient {
      * @return True on success, false otherwise
      */
     private boolean closeConnection() {
+        try {
+            socket.close();
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return false;
     }
 
@@ -104,7 +118,6 @@ public class SimpleTcpClient {
      * @return True when connection established, false otherwise
      */
     private boolean connectToServer(String host, int port) {
-        Socket socket = new Socket();
         InetSocketAddress serverAddress = new InetSocketAddress(host, port);
         try {
             socket.connect(serverAddress);
