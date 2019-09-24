@@ -65,7 +65,7 @@ public class SimpleTcpClient {
                 String response = readResponseFromServer();
                 if (response != null) {
                     log("Server responded with: " + response);
-                    int secondsToSleep = 2 + (int)(Math.random() * 5);
+                    int secondsToSleep = 2 + (int) (Math.random() * 5);
                     log("Sleeping " + secondsToSleep + " seconds to allow simulate long client-server connection...");
                     Thread.sleep(secondsToSleep * 1000);
                     request = "bla+bla";
@@ -112,11 +112,13 @@ public class SimpleTcpClient {
     private boolean closeConnection() {
         try {
             socket.close();
+            socket = null;
             return true;
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
-        return false;
+
     }
 
     /**
@@ -146,28 +148,28 @@ public class SimpleTcpClient {
      */
     private boolean sendRequestToServer(String request) {
         if (request != null) {
-            if (socket.isConnected()) {
-                try {
-                    OutputStream out = socket.getOutputStream();
-                    PrintWriter writer = new PrintWriter(out, true);
-                    writer.println(request);
-                    return true;
-                }
-                catch (IOException e) {
-                    e.printStackTrace();
-                }
-                catch (NullPointerException npe) {
-                    npe.printStackTrace();
+            if(socket != null) {
+                if(socket.isConnected()) {
+                    try {
+                        OutputStream out = socket.getOutputStream();
+                        PrintWriter writer = new PrintWriter(out, true);
+                        writer.println(request);
+                        return true;
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (NullPointerException npe) {
+                        npe.printStackTrace();
+                    }
                 }
             }
         }
         return false;
-        // Hint: What can go wrong? Several things:
-        // * Connection closed by remote host (server shutdown)
-        // * Internet connection lost, timeout in transmission
-        // * Connection not opened.
-        // * What is the request is null or empty?
     }
+    // Hint: What can go wrong? Several things:
+    // * Connection closed by remote host (server shutdown)
+    // * Internet connection lost, timeout in transmission
+    // * Connection not opened.
+    // * What is the request is null or empty?
 
     /**
      * Wait for one response from the remote server.
