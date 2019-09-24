@@ -16,13 +16,18 @@ import java.util.Scanner;
 public class SimpleTcpClient {
     // Remote host where the server will be running
     private static final String HOST = "localhost";
+
     // TCP port
-    private static final int PORT = 1333;
+    private static final int PORT = 1301;
 
     private Socket socket;
+    InetSocketAddress serverAddress;
+    InputStreamReader reader;
+    BufferedReader buffReader;
 
     public SimpleTcpClient() {
         this.socket = new Socket();
+
     }
 
     /**
@@ -122,7 +127,7 @@ public class SimpleTcpClient {
      * @return True when connection established, false otherwise
      */
     private boolean connectToServer(String host, int port) {
-        InetSocketAddress serverAddress = new InetSocketAddress(host, port);
+        serverAddress = new InetSocketAddress(host, port);
         try {
             socket.connect(serverAddress);
             return true;
@@ -147,14 +152,13 @@ public class SimpleTcpClient {
                     PrintWriter writer = new PrintWriter(out, true);
                     writer.println(request);
                     return true;
-                } catch (IOException e) {
+                }
+                catch (IOException e) {
                     e.printStackTrace();
-                } catch (NullPointerException npe){
+                }
+                catch (NullPointerException npe) {
                     npe.printStackTrace();
                 }
-            }
-            else {
-                return false;
             }
         }
         return false;
@@ -174,12 +178,14 @@ public class SimpleTcpClient {
     private String readResponseFromServer() {
         String responseLine = null;
         try {
-            InputStream in = socket.getInputStream();
-            BufferedReader br = new BufferedReader(new InputStreamReader(in));
-            responseLine = br.readLine();
-        } catch (IOException e) {
+            reader = new InputStreamReader(socket.getInputStream());
+            buffReader = new BufferedReader(reader);
+            responseLine = buffReader.readLine();
+        }
+        catch (IOException e) {
             e.printStackTrace();
-        } catch (NullPointerException npe) {
+        }
+        catch (NullPointerException npe) {
             npe.printStackTrace();
         }
         // Similarly to other methods, exception can happen while trying to read the input stream of the TCP Socket
