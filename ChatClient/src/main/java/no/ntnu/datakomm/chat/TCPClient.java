@@ -6,9 +6,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class TCPClient {
+
     private PrintWriter toServer;
     private BufferedReader fromServer;
     private Socket connection;
+    private InetSocketAddress serverAddress;
+
 
     // Hint: if you want to store a message for the last error, store it here
     private String lastError = null;
@@ -23,8 +26,15 @@ public class TCPClient {
      * @return True on success, false otherwise
      */
     public boolean connect(String host, int port) {
+        serverAddress = new InetSocketAddress(host, port);
+        try {
+            connection.connect(serverAddress);
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         // TODO Step 1: implement this method
-        // Hint: Remember to process all exceptions and return false on error
+        // Hint: Remember to process all exceptions and return false on error, OK
         // Hint: Remember to set up all the necessary input/output stream variables
         return false;
     }
