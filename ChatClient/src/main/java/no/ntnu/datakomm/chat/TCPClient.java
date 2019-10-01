@@ -49,6 +49,15 @@ public class TCPClient {
      * that no two threads call this method in parallel.
      */
     public synchronized void disconnect() {
+        if(connection.isConnected()) {
+            try {
+                connection.close();
+                connection = null;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         // TODO Step 4: implement this method
         // Hint: remember to check if connection is active
     }
@@ -67,15 +76,24 @@ public class TCPClient {
      * @return true on success, false otherwise
      */
     private boolean sendCommand(String cmd) {
-        if(connection.isConnected()) {
-            try {
-                OutputStream out = connection.getOutputStream();
-                toServer = new PrintWriter(out, true);
-                toServer.print(cmd);
-                return true;
-            }
-            catch (IOException e) {
-                e.printStackTrace();
+        if(connection != null) {
+            if(connection.isConnected()) {
+                try {
+                    toServer = new PrintWriter(connection.getOutputStream(), true);
+                    if(cmd.startsWith("msg ")) {
+                        toServer.println(cmd);
+                    }
+                    else if (cmd.startsWith("privmsg ")) {
+                        toServer.println("privmsg ");
+                    }
+
+
+
+                    toServer.print(cmd);
+                    return true;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -91,17 +109,10 @@ public class TCPClient {
      * @return true if message sent, false on error
      */
     public boolean sendPublicMessage(String message) {
-        if(isConnectionActive()) {
+        if(connection != null) {
             if(connection.isConnected()) {
-                try {
-                    OutputStream out = connection.getOutputStream();
-                    toServer = new PrintWriter(out, true);
-                    toServer.println(sendCommand(message));
-                    return true;
-                }
-                catch (IOException e) {
-                    e.printStackTrace();
-                }
+                sendCommand("msg " + message);
+                return true;
             }
         }
         // TODO Step 2: implement this method
@@ -116,6 +127,14 @@ public class TCPClient {
      * @param username Username to use
      */
     public void tryLogin(String username) {
+        if(isConnectionActive()) {
+            try {
+                toServer = new PrintWriter(connection.getOutputStream(), true);
+                toServer.println("login " + username);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         // TODO Step 3: implement this method
         // Hint: Reuse sendCommand() method
@@ -139,6 +158,13 @@ public class TCPClient {
      * @return true if message sent, false on error
      */
     public boolean sendPrivateMessage(String recipient, String message) {
+        if(connection != null) {
+            if(connection.isConnected()) {
+                sendCommand("privsmg " + recipient + " " + message);
+                return true;
+
+            }
+        }
         // TODO Step 6: Implement this method
         // Hint: Reuse sendCommand() method
         // Hint: update lastError if you want to store the reason for the error.
@@ -161,10 +187,22 @@ public class TCPClient {
      * @return one line of text (one command) received from the server
      */
     private String waitServerResponse() {
+        String responseLine;
+        if(isConnectionActive()) {
+            if(connection != null) {
+                try {
+                    InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+                    fromServer = new BufferedReader(reader);
+                    responseLine = fromServer.readLine();
+                    return responseLine;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
         // TODO Step 3: Implement this method
         // TODO Step 4: If you get I/O Exception or null from the stream, it means that something has gone wrong
         // with the stream and hence the socket. Probably a good idea to close the socket in that case.
-
         return null;
     }
 
@@ -197,7 +235,15 @@ public class TCPClient {
      * the connection is closed.
      */
     private void parseIncomingCommands() {
+        boolean running = true;
         while (isConnectionActive()) {
+            while (running) {
+                String tempFeedback = waitServerResponse();
+                if(tempFeedback.startsWith("loginok")) {
+
+                }
+            }
+        }
             // TODO Step 3: Implement this method
             // Hint: Reuse waitServerResponse() method
             // Hint: Have a switch-case (or other way) to check what type of response is received from the server
@@ -215,7 +261,7 @@ public class TCPClient {
 
             // TODO Step 8: add support for incoming supported command list (type: supported)
 
-        }
+
     }
 
     /**
