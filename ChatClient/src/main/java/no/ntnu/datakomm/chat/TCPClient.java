@@ -10,7 +10,6 @@ public class TCPClient {
     private PrintWriter toServer;
     private BufferedReader fromServer;
     private Socket connection;
-    private InetSocketAddress serverAddress;
 
 
     // Hint: if you want to store a message for the last error, store it here
@@ -26,7 +25,7 @@ public class TCPClient {
      * @return True on success, false otherwise
      */
     public boolean connect(String host, int port) {
-        serverAddress = new InetSocketAddress(host, port);
+        InetSocketAddress serverAddress = new InetSocketAddress(host, port);
         try {
             connection.connect(serverAddress);
             return true;
@@ -67,6 +66,18 @@ public class TCPClient {
      * @return true on success, false otherwise
      */
     private boolean sendCommand(String cmd) {
+        if(connection.isConnected()) {
+            try {
+                OutputStream out = connection.getOutputStream();
+                toServer = new PrintWriter(out, true);
+                toServer.print(cmd);
+                return true;
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         // TODO Step 2: Implement this method
         // Hint: Remember to check if connection is active
         return false;
@@ -79,6 +90,20 @@ public class TCPClient {
      * @return true if message sent, false on error
      */
     public boolean sendPublicMessage(String message) {
+        if(isConnectionActive()) {
+            if(connection.isConnected()) {
+                try {
+                    String cmdWord = "msg";
+                    OutputStream out = connection.getOutputStream();
+                    toServer = new PrintWriter(out, true);
+                    toServer.println(sendCommand(cmdWord) + " " + message);
+                    return true;
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
         // TODO Step 2: implement this method
         // Hint: Reuse sendCommand() method
         // Hint: update lastError if you want to store the reason for the error.
