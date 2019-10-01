@@ -25,8 +25,9 @@ public class TCPClient {
      * @return True on success, false otherwise
      */
     public boolean connect(String host, int port) {
-        InetSocketAddress serverAddress = new InetSocketAddress(host, port);
+        SocketAddress serverAddress = new InetSocketAddress(host, port);
         try {
+            connection = new Socket();
             connection.connect(serverAddress);
             return true;
         } catch (IOException e) {
@@ -93,10 +94,9 @@ public class TCPClient {
         if(isConnectionActive()) {
             if(connection.isConnected()) {
                 try {
-                    String cmdWord = "msg";
                     OutputStream out = connection.getOutputStream();
                     toServer = new PrintWriter(out, true);
-                    toServer.println(sendCommand(cmdWord) + " " + message);
+                    toServer.println(sendCommand(message));
                     return true;
                 }
                 catch (IOException e) {
@@ -116,6 +116,7 @@ public class TCPClient {
      * @param username Username to use
      */
     public void tryLogin(String username) {
+
         // TODO Step 3: implement this method
         // Hint: Reuse sendCommand() method
     }
