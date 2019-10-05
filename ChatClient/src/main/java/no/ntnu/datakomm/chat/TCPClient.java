@@ -130,7 +130,7 @@ public class TCPClient {
         if(isConnectionActive()) {
             try {
                 toServer = new PrintWriter(connection.getOutputStream(), true);
-                toServer.println("login " + username);
+                sendCommand("login " + username);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -214,7 +214,8 @@ public class TCPClient {
     public String getLastError() {
         if (lastError != null) {
             return lastError;
-        } else {
+        }
+        else {
             return "";
         }
     }
@@ -237,11 +238,17 @@ public class TCPClient {
     private void parseIncomingCommands() {
         boolean running = true;
         while (isConnectionActive()) {
-            while (running) {
-                String tempFeedback = waitServerResponse();
-                if(tempFeedback.startsWith("loginok")) {
-
-                }
+            String[] tempFeedback = waitServerResponse().split(" ");
+            switch(tempFeedback[0]) {
+                case "loginok":
+                    onLoginResult(true, tempFeedback[0]);
+                    break;
+                case "loginerr":
+                    onLoginResult(false, tempFeedback[0]);
+                    break;
+                default:
+                    //
+                    break;
             }
         }
             // TODO Step 3: Implement this method
