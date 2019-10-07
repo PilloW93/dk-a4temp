@@ -41,8 +41,7 @@ public class TCPClient {
             }
 
 
-        }
-        catch(IOException ioe) {
+        } catch (IOException ioe) {
             System.out.println("Unexpected exception: " + ioe.getMessage());
         }
 
@@ -64,7 +63,7 @@ public class TCPClient {
         // TODO Step 4: implement this method
         // Hint: remember to check if connection is active
         try {
-            if (connection.isConnected()) {
+            if (isConnectionActive()) {
                 connection.close();
                 connection = null;
             }
@@ -91,7 +90,16 @@ public class TCPClient {
     private boolean sendCommand(String cmd) {
         // TODO Step 2: Implement this method
         // Hint: Remember to check if connection is active
-        return false;
+        boolean success = false;
+        if (isConnectionActive()) {
+            toServer.println(cmd);
+            success = true;
+        } else {
+            System.out.println("Command not sent");
+        }
+
+
+        return success;
     }
 
     /**
