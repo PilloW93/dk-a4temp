@@ -63,6 +63,16 @@ public class TCPClient {
     public synchronized void disconnect() {
         // TODO Step 4: implement this method
         // Hint: remember to check if connection is active
+        try {
+            if (connection.isConnected()) {
+                connection.close();
+                connection = null;
+            }
+            System.out.println("The socket is closed...");
+
+        } catch (IOException e) {
+            System.out.println("Unexpected exception: " + e.getMessage());
+        }
     }
 
     /**
