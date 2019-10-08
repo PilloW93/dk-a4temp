@@ -53,6 +53,10 @@ public class TCPClient {
             try {
                 connection.close();
                 connection = null;
+                fromServer.close();
+                fromServer = null;
+                toServer.close();
+                toServer = null;
                 onDisconnect();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -189,6 +193,7 @@ public class TCPClient {
      * the connection is closed.
      */
     private void parseIncomingCommands() {
+
         while (isConnectionActive()) {
 
             String[] tempFeedback = waitServerResponse().split(" ", 2);
@@ -243,7 +248,7 @@ public class TCPClient {
                     break;
 
                 default:
-                    //
+                    System.out.println("Default-case trigger.");
                     break;
             }
         }
