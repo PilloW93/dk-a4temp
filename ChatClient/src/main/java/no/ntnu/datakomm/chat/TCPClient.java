@@ -94,10 +94,7 @@ public class TCPClient {
         if (isConnectionActive()) {
             toServer.println(cmd);
             success = true;
-        } else {
-            System.out.println("Command not sent");
         }
-
 
         return success;
     }
@@ -112,7 +109,15 @@ public class TCPClient {
         // TODO Step 2: implement this method
         // Hint: Reuse sendCommand() method
         // Hint: update lastError if you want to store the reason for the error.
-        return false;
+        boolean success = false;
+        if (isConnectionActive()) {
+            sendCommand("msg" + message);
+            success = true;
+        } else {
+            System.out.println("Public message not sent");
+        }
+
+        return success;
     }
 
     /**
@@ -123,6 +128,9 @@ public class TCPClient {
     public void tryLogin(String username) {
         // TODO Step 3: implement this method
         // Hint: Reuse sendCommand() method
+        sendCommand("login " + username);
+
+
     }
 
     /**
@@ -133,6 +141,10 @@ public class TCPClient {
         // TODO Step 5: implement this method
         // Hint: Use Wireshark and the provided chat client reference app to find out what commands the
         // client and server exchange for user listing.
+
+        sendCommand("users");
+
+
     }
 
     /**
@@ -169,6 +181,8 @@ public class TCPClient {
         // TODO Step 4: If you get I/O Exception or null from the stream, it means that something has gone wrong
         // with the stream and hence the socket. Probably a good idea to close the socket in that case.
 
+
+
         return null;
     }
 
@@ -202,6 +216,61 @@ public class TCPClient {
      */
     private void parseIncomingCommands() {
         while (isConnectionActive()) {
+
+            String []tempFeedback = waitServerResponse().split(" ",2);
+            switch (tempFeedback[0]){
+                case "loginok":
+                    onLoginResult(true,null);
+                    break;
+
+                case "loginerr":
+                    onLoginResult(false,"login error");
+                    break;
+
+                case "users":
+                    String tempList = tempFeedback[1];
+                    String [] userList = tempList.split(" ");
+                    onUsersList(userList);
+                    break;
+
+                case "msg":
+                    boolean priv = false;
+                    String pubFeedback = tempFeedback[1];
+                    String[] tempPubInfo = pubFeedback.split(" ",2);
+                    String pubSender = tempPubInfo[0];
+                    String pubMsg = tempPubInfo[1];
+                    onMsgReceived(priv,pubSender,pubMsg);
+                    break;
+
+                case"privmsg":
+                    boolean isPrivate = true;
+                    String privFeedback = tempFeedback[1];
+                    String [] tempInfo = privFeedback.split(" ",2);
+                    String privSender = tempInfo[0];
+                    String privMsg = tempInfo[1];
+                    onMsgReceived(isPrivate,privSender,privMsg);
+
+                case "msgerr":
+                    String tempErr = tempFeedback[1];
+                    onMsgError(tempErr);
+                    break;
+
+                case "cmderr":
+                    String tempCmderr = tempFeedback[1];
+                    onCmdError(tempCmderr);
+                    break;
+
+                case "supported" :
+                    String feedback = tempFeedback[1];
+                    String[] helpCommands = feedback.split(" ");
+                    onSupported(helpCommands);
+                    break;
+
+                    default:
+                        System.out.println("Default case error");
+                        break;
+
+            }
             // TODO Step 3: Implement this method
             // Hint: Reuse waitServerResponse() method
             // Hint: Have a switch-case (or other way) to check what type of response is received from the server
@@ -266,6 +335,10 @@ public class TCPClient {
      * Internet error)
      */
     private void onDisconnect() {
+
+        for (ChatListener cl : listeners){
+            cl.onDisconnect();
+        }
         // TODO Step 4: Implement this method
         // Hint: all the onXXX() methods will be similar to onLoginResult()
     }
@@ -276,6 +349,10 @@ public class TCPClient {
      * @param users List with usernames
      */
     private void onUsersList(String[] users) {
+        for (ChatListener cl : listeners){
+            cl.onUserList(users);
+        }
+
         // TODO Step 5: Implement this method
     }
 
