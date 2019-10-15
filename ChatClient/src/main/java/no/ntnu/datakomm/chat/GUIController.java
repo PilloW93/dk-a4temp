@@ -154,7 +154,7 @@ public class GUIController implements ChatListener {
      * @param warning When true, this message is a warning that must be displayed to the user
      */
     private void addMsgToGui(boolean local, TextMessage msg, boolean warning) {
-        // Create GUI elements, set their text and style according to what 
+        // Create GUI elements, set their text and style according to what
         // type of message this is
 
         HBox message = new HBox();
@@ -256,7 +256,7 @@ public class GUIController implements ChatListener {
             // Update button texts
             serverStatus.setText(status);
             connectBtn.setText(connBtnText);
-            // Connection button was disabled while connection was in progress, 
+            // Connection button was disabled while connection was in progress,
             // now we enable it
             connectBtn.setDisable(false);
 
@@ -269,7 +269,7 @@ public class GUIController implements ChatListener {
     }
 
     ///////////////////////////////////////////////////////////////////////
-    // The methods below are called by the associated TcpClient (facade 
+    // The methods below are called by the associated TcpClient (facade
     // object) in another background thread when messages are received
     // from the server.
     ///////////////////////////////////////////////////////////////////////
